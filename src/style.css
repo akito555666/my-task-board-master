@@ -1,0 +1,132 @@
+:root {
+  --bg-in-progress: #f5d565;
+  --bg-completed: #a0ecb1;
+  --bg-wont-do: #f7d4d3;
+  --bg-to-do: #e3e8ef;
+  --bg-add-task: #f5e8d5;
+  --card-radius: 12px;
+  --card-padding: 1rem;
+  --transition-speed: 0.3s;
+}
+
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 2rem;
+
+}
+
+.board-header {
+  display: flex;
+  flex: 1 1 auto;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #fff;
+  max-width: 600px;
+  margin: auto;
+}
+
+.board-app-icon {
+  justify-content: flex-start;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.board-text {
+  flex: 1 1 auto;
+  /* text-align: center; */
+}
+
+.board-title {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 2.0rem;
+  font-weight: bold;
+}
+.board-edit-icon {
+  align-self: flex-end;
+  padding-bottom: 0.5rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.board-description {
+  font-size: 1rem;
+  color: #666;
+}
+
+
+.task-board {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  max-width: 600px;
+  margin: auto;
+}
+
+.task-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 200px;
+  max-width: 600px;
+  max-height: 100px;
+  background-color: var(--bg-to-do);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform var(--transition-speed);
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+}
+
+.task-card.in-progress { background-color: var(--bg-in-progress); }
+.task-card.completed { background-color: var(--bg-completed); }
+.task-card.wont-do { background-color: var(--bg-wont-do); }
+.task-card.to-do { background-color: var(--bg-to-do); }
+.task-card.add-task { background-color: var(--bg-add-task); }
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  justify-content: flex-start;
+}
+
+.task-icon {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.task-status {
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+
+.task-content {
+  max-width: 300px;
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.4;
+}
+
+.author-info {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 16px;
+  color: rgb(55, 65, 81);
+}
+
+.author-info a {
+  text-decoration: none;
+}
