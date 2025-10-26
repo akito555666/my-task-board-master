@@ -15,7 +15,7 @@ body {
   background-color: #f0f2f5;
   margin: 0;
   padding: 2rem;
-
+  color: #000;
 }
 
 .board-header {
@@ -35,8 +35,6 @@ body {
   justify-content: flex-start;
   margin: 0.5rem;
   margin-top: 0.25rem;
-  /* font-size: 1.5rem; */
-  /* color: #333; */
 }
 
 .board-text {
@@ -49,16 +47,39 @@ body {
   gap: 0.25rem;
   font-size: 2.0rem;
   font-weight: bold;
+  border: none;
 }
+
+.board-title-input {
+  font-size: 2.0rem;
+  font-weight: bold;
+  border: none;
+  color: #000;
+}
+
+.board-title-input:enabled {
+  border: solid 2px #ccc;
+  border-radius: 8px;
+  width: auto;
+}
+
 .board-edit-icon {
   align-self: flex-end;
   padding-bottom: 0.5rem;
 }
 
-.board-description {
+.board-edit-icon:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.board-description-text {
   font-size: 1rem;
-  font-weight: bold;
-  color: #666;
+  font-weight: normal;
+  color: #000;
+  border: none;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 

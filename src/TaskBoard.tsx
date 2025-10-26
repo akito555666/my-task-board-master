@@ -1,17 +1,58 @@
 import { JSX } from "react";
+import { useState } from "react";
 import Logo from "../resources/Logo.svg";
 import EditIcon from "../resources/Edit_duotone.svg";
 import TaskStatusInProgressIcon from "../resources/Time_atack_duotone.svg";
 import TaskStatusCompletedIcon from "../resources/Done_round_duotone.svg";
 import TaskStatusWontDoIcon from "../resources/close_ring_duotone.svg";
 
-declare module '*.svg' {
-  const content: string;
-  export default content;
-}
-
-
 export const TaskBoard = (): JSX.Element => {
+  const [boardTitle, setBoardTitle] = useState<string>('My Task Board');
+  const [boardTitleDisabled, setBoardTitleDisabled] = useState<boolean>(true);
+  const [boardDescription, setBoardDescription] = useState<string>('Tasks to keep organised');
+  const [todoText, setTodoText] = useState<string>('');
+  const [incompleteTodos, setIncompleteTodos] = useState<string[]>([]);
+  const [completeTodos, setCompleteTodos] = useState<string[]>([]);
+
+  const onClickBoardTitleEdit = () => setBoardTitleDisabled(!boardTitleDisabled);
+  // const onChangeTodoText = (event) => setTodoText(event.target.value);
+
+  // const onClickAdd = () => {
+  //   if (todoText === '') return;
+  //   const newTodos = [...incompleteTodos, todoText];
+  //   setIncompleteTodos(newTodos);
+  //   setTodoText(''); // input reset
+  // };
+
+  // const onClickDelete = (index) => {
+  //   const newTodos = [...incompleteTodos];
+  //   newTodos.splice(index, 1);
+  //   setIncompleteTodos(newTodos);
+  // };
+
+  // const onClickComplete = (index) => {
+  //   // 削除する要素の取得
+  //   const newIncompleteTodos = [...incompleteTodos];
+  //   newIncompleteTodos.splice(index, 1);
+
+  //   // 完了する要素の取得
+  //   const newCompleteTodos = [...completeTodos, incompleteTodos[index]];
+  //   setIncompleteTodos(newIncompleteTodos); // delete
+  //   setCompleteTodos(newCompleteTodos); // complete
+  // };
+
+  // const onClickBack = (index) => {
+  //   // 削除する要素の取得
+  //   const newCompleteTodos = [...completeTodos];
+  //   newCompleteTodos.splice(index, 1);
+  //   // 完了する要素の取得
+  //   const newIncompleteTodos = [...incompleteTodos, completeTodos[index]];
+  //   setIncompleteTodos(newIncompleteTodos);
+  //   setCompleteTodos(newCompleteTodos);
+  // };
+
+  const isMaxLimitIncompleteTodos = incompleteTodos.length >= 5;
+
   return (
     <>
       <div className="board-header">
@@ -19,21 +60,33 @@ export const TaskBoard = (): JSX.Element => {
           <img src={Logo} alt="Logo" className="board-logo-img" />
         </div>
         <div className="board-text">
-          <div className="board-title">My Task Board
-            <div className="board-edit-icon">
+          <div className="board-title">
+            <input
+              type="text"
+              disabled={boardTitleDisabled}
+              placeholder="Your Board Title"
+              value={boardTitle}
+              className="board-title-input"
+              size={boardTitle.length}
+            />
+            <div className="board-edit-icon" onClick={() => {
+              onClickBoardTitleEdit();
+            }}>
               <img src={EditIcon} alt="Edit-Icon" className="board-edit-icon-img" />
             </div>
           </div>
-          <div className="board-description">Tasks to keep organised</div>
+          <div className="board-description">
+            <textarea
+              disabled={boardTitleDisabled}
+              placeholder="Your Board Description"
+              value={boardDescription}
+              className="board-description-text"
+            />
+          </div>
         </div>
-      </div>
+      </div >
 
       <div className="task-board">
-        {/* ここにタスクボードの内容を追加します */}
-        {/* <div>Enter a short description</div>
-      <div>In Progress</div>
-      <div>Completed</div>
-      <div>Won’t do</div> */}
         <div className="task-card in-progress" onClick={() => { alert("Click Task in Progress") }}>
           <div className="task-header">
             <span className="task-icon">⏰️</span>
