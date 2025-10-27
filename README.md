@@ -1,4 +1,4 @@
-# Java エンジニアが DevChallenges - My Task Board に挑戦してみた！
+# Java SE が DevChallenges - My Task Board に挑戦してみた！
 こんにちは。
 今回は DevChallenges の My Task Board に挑戦してみました。
 私は Java エンジニアですが、React をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
