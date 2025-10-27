@@ -1,6 +1,6 @@
 # Java エンジニアが DevChallenges - My Task Board に挑戦してみた！
 こんにちは。
-今回は、DevChallenges の My Task Board に挑戦してみました。
+今回は DevChallenges の My Task Board に挑戦してみました。
 私は Java エンジニアですが、React をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
 
 ## 実行方法
@@ -8,7 +8,7 @@
 
 例：`C:\DevChallenges\my-task-board-master-main`
 
-2.ソースコードを展開したルートフォルダ( index.html や src フォルダがある場所)で [Visual Studio Code](https://code.visualstudio.com/) (以降、VSCode)を開きます。
+2.ソースコードを展開したルートフォルダ( `index.html` や `/src` フォルダがある場所)で [Visual Studio Code](https://code.visualstudio.com/) (以降、VSCode)を開きます。
 
 `code C:\DevChallenges\my-task-board-master-main`
 
