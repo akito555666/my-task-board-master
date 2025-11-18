@@ -4,23 +4,30 @@
 
 :root {
   /* Colors */
-  --bg-in-progress: #f5d565;
-  --bg-completed: #a0ecb1;
-  --bg-wont-do: #f7d4d3;
-  --bg-to-do: #e3e8ef;
+  --bg-in-progress: #F5D565;
+  --bg-completed: #A0ECB1;
+  --bg-wont-do: #F7D4D3;
+  --bg-to-do: #E3E8EF;
   --bg-add-task: #f5e8d5;
-  --primary-color: #007bff;
-  --danger-color: #dc3545;
+  --bg-icon-card-default: #F8FAFC;
+  --bg-icon-modal-default: #E3E8EF;
+  --bg-icon-in-progress: #E9A23B;
+  --bg-icon-completed: #32D657;
+  --bg-icon-wont-do: #DD524C;
+  --primary-color: #3662E3;
+  --danger-color: #97A3B6;
+  --danger-hober-color: #DD524C;
   --text-color: #000;
-  --text-color-light: #666;
-  --background-color: #f0f2f5;
-  --white: #fff;
-  --border-color: #ccc;
+  --text-color-light: #F8FAFC;
+  --background-color: #F8FAFC;
+  --border-color: #E3E8EF;
   --border-color-light: #eee;
+  --modal-background-color: #00000033;
 
   /* Spacing & Sizing */
   --card-radius: 12px;
   --card-padding: 1rem;
+  --border-radius: 8px;
   --button-radius: 12px;
 
   /* Transitions */
@@ -125,12 +132,15 @@ body {
   flex-direction: column;
   min-width: 200px;
   max-width: 600px;
-  max-height: 100px;
+  /* 高さをコンテンツに合わせて自動調整 */
+  height: auto;
   background-color: var(--bg-to-do);
   border-radius: var(--card-radius);
   padding: var(--card-padding);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform var(--transition-speed);
+  /* box-shadow: 0 4px 8px rgba(0,0,0,0.1); */
+  /* transition: transform var(--transition-speed); */
+  /* スムーズにサイズ変化させる */
+  transition: transform var(--transition-speed), height 0.18s ease, padding 0.18s ease;
 }
 
 .task-card:hover {
@@ -150,9 +160,9 @@ body {
   font-weight: bold;
 }
 
-.task-icon {
+.task-icon-card {
   align-self: flex-start;
-  background-color: var(--white);
+  background-color: var(--background-color);
   border-radius: 12px;
   padding: 0.3rem;
   font-size: var(--font-size-medium);
@@ -169,12 +179,15 @@ body {
 .status-wont-do { background-color: #dd524c; }
 
 .task-content {
-  max-width: 290px;
+  width: 100%;
   font-size: var(--font-size-small);
   font-weight: normal;
-  color: #444;
+  color: var(--text-color);
   line-height: 1.4;
   padding-top: 0.5rem;
+  /* 長いテキストや改行を許容して高さを伸ばす */
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ==========================================================================
@@ -183,24 +196,29 @@ body {
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  background-color: var(--modal-background-color);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-end;  /* 右端に寄せる */
+  align-items: stretch; /* 縦方向は伸ばす */
   z-index: 1000;
 }
 
 .modal-content {
-  background-color: var(--white);
+  width: calc(50vw - 16px);
+  height: calc(100vh - 16px);
+  border-radius: var(--border-radius);
+  margin: 16px;
   padding: 20px;
-  border-radius: 8px;
-  min-width: 300px;
-  max-width: 500px;
+  background-color: var(--background-color);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+  /* 追加: フレックスレイアウトで footer を下に固定 */
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 72px); /* 上下のマージン分を差し引いた高さ */
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .modal-header {
@@ -225,10 +243,30 @@ body {
 
 .modal-body {
   padding-top: 10px;
+
+  /* 本文領域を伸ばしスクロール可能にする */
+  flex: 1 1 auto;
+  overflow: auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* スクロールバーを非表示にする（スクロールは可能） */
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none;    /* Firefox */
+  -webkit-overflow-scrolling: touch; /* iOS スムーズスクロール */
+}
+.modal-body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
 }
 
 .form-group {
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group label {
@@ -239,29 +277,53 @@ body {
 
 .form-control {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--button-radius);
+  border-radius: var(--border-radius);
   font-size: var(--font-size-normal);
+  background-color: var(--background-color);
+  resize: vertical; /* 縦サイズはリサイズ可能 */
+  min-height: 40px;
+}
+
+/* テキストエリア: デフォルトサイズは維持しつつ、リサイズハンドルを非表示にして自動高さ調整を可能に */
+textarea.form-control {
+  resize: none;        /* ユーザーによる手動リサイズハンドルを非表示に */
+  overflow: hidden;    /* 自動サイズ時にスクロールバーを出さない */
+  min-height: 40px;    /* 既存のデフォルトを維持 */
+  box-sizing: border-box;
 }
 
 .icon-selector, .status-selector {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap; /* 折り返す */
+  width: 100%;
 }
 
-.task-icon,
+.task-icon-modal,
 .task-status-option {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--button-radius);
   border: 2px solid transparent;
+  background-color: var(--bg-icon-modal-default);
+  flex: 0 0 auto; /* 折り返しても要素のサイズを維持 */
 }
 
-.task-icon.selected,
+.task-status-option {
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+.task-icon.selected {
+  background-color: #F5D565;
+}
+
+
 .task-status-option.selected {
   border-color: var(--primary-color);
-  background-color: #e7f3ff;
 }
 
 .task-status-option {
@@ -273,8 +335,10 @@ body {
   justify-content: flex-end;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color-light);
   margin-top: 1rem;
+
+  /* 追加: footer をコンテナ下端に配置 */
+  margin-top: auto;
 }
 
 .btn {
@@ -287,12 +351,42 @@ body {
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: var(--text-color-light);
 }
 
 .btn-danger {
   background-color: var(--danger-color);
-  color: var(--white);
+  color: var(--text-color-light);
+}
+.btn-danger:hover {
+  background-color: var(--danger-hober-color);
+}
+
+/* モバイルでは全幅モーダルに */
+@media (max-width: 700px) {
+  .modal-overlay {
+    justify-content: center;
+    align-items: stretch;
+    padding: 8px;
+  }
+  .modal-content {
+    width: calc(100vw - 16px);
+    height: calc(66% - 16px);
+    max-width: calc(100vw - 16px);
+    border-radius: 10px;
+    margin: 16px;
+
+    /* モバイルでも縦方向フレックスを維持 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-body {
+    /* モバイル時も本文をスクロール可能に */
+    flex: 1 1 auto;
+    overflow: auto;
+  }
 }
 
 /* ==========================================================================
@@ -309,3 +403,4 @@ body {
 .author-info a {
   text-decoration: none;
 }
+
