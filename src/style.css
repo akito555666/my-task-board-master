@@ -388,6 +388,15 @@ textarea.form-control::placeholder {
   border-radius: var(--modal-save-delete-button-radius);
   cursor: pointer;
   font-size: var(--font-size-normal);
+  display: flex; /* Make the button a flex container */
+  align-items: center; /* Vertically align items */
+  gap: 0.5rem; /* Space between icon and text */
+}
+
+.btn-save-icon,
+.btn-delete-icon {
+  width: 1.2em; /* Adjust size as needed */
+  height: 1.2em; /* Adjust size as needed */
 }
 
 .btn-primary {

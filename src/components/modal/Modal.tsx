@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Task } from "../../types";
 import { useModal } from "./useModal";
 import CloseIcon from "../../../resources/close_ring_duotone-1.svg";
+import SaveIcon from "../../../resources/Done_round.svg";
+import DeleteIcon from "../../../resources/Trash.svg";
 
 const availableIcons = ['🧑‍💻', '💬', '⏰️', '🏋️‍♂️', '☕', '📚'];
 const availableStatuses: Task['status'][] = ['in-progress', 'completed', 'wont-do'];
@@ -98,8 +100,8 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={handleDelete} className="btn btn-danger">Delete</button>
-          <button onClick={handleSave} className="btn btn-primary">Save</button>
+          <button onClick={handleDelete} className="btn btn-danger">Delete<img src={DeleteIcon} alt="Delete" className="btn-delete-icon" /></button>
+          <button onClick={handleSave} className="btn btn-primary">Save<img src={SaveIcon} alt="Save" className="btn-save-icon" /></button>
         </div>
       </div>
     </div>
