@@ -1,10 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Task } from "../../types";
 import { useModal } from "./useModal";
+import InProgressIcon from "../../../resources/Time_atack_duotone.svg";
+import CompletedIcon from "../../../resources/Done_round_duotone.svg";
+import WontDoIcon from "../../../resources/close_ring_duotone.svg";
+import StatusSelectIcon from "../../../resources/Done_round_duotone.svg";
+import SaveIcon from "../../../resources/Done_round.svg";
+import DeleteIcon from "../../../resources/Trash.svg";
 import CloseIcon from "../../../resources/close_ring_duotone-1.svg";
 
-const availableIcons = ['🧑‍💻', '💬', '⏰️', '🏋️‍♂️', '☕', '📚'];
-const availableStatuses: Task['status'][] = ['in-progress', 'completed', 'wont-do'];
+const availableIcons = ['🧑‍💻', '💬', '☕', '🏋️‍♂️', '📚', '⏰️'];
+
+const statusOptions: { value: Task['status']; label: string; icon: string }[] = [
+  { value: 'in-progress', label: 'In Progress', icon: InProgressIcon },
+  { value: 'completed', label: 'Completed', icon: CompletedIcon },
+  { value: 'wont-do', label: "Won't do", icon: WontDoIcon },
+];
 
 interface ModalProps {
   onClose: () => void;
@@ -91,15 +102,25 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
           <div className="form-group">
             <label>Status</label>
             <div className="status-selector">
-              {availableStatuses.map(status => (
-                <span key={status} className={`task-status-option status-${status} ${editTask.status === status ? 'selected' : ''}`} onClick={() => handleStatusSelect(status)}>{status.replace('-', ' ')}</span>
+              {statusOptions.map(({ value, label, icon }) => (
+                <div
+                  key={value}
+                  className={`task-status-option ${editTask.status === value ? 'selected' : ''}`}
+                  onClick={() => handleStatusSelect(value)}
+                >
+                  <img src={icon} alt={label} className={`task-status status-${value} status-icon`} />
+                  <span>{label}</span>
+                  {editTask.status === value && (
+                    <img src={StatusSelectIcon} alt="Status selected" className="status-select-icon" />
+                  )}
+                </div>
               ))}
             </div>
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={handleDelete} className="btn btn-danger">Delete</button>
-          <button onClick={handleSave} className="btn btn-primary">Save</button>
+          <button onClick={handleDelete} className="btn btn-danger">Delete<img src={DeleteIcon} alt="Delete" className="btn-delete-icon" /></button>
+          <button onClick={handleSave} className="btn btn-primary">Save<img src={SaveIcon} alt="Save" className="btn-save-icon" /></button>
         </div>
       </div>
     </div>
