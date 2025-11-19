@@ -34,7 +34,7 @@
   --modal-save-delete-button-radius: 20px;
 
   /* Transitions */
-  --transition-speed: 0.3s;
+  --transition-speed: 0.2s;
 
   /* Font Sizes */
   --font-size-large: 2rem;
@@ -167,7 +167,7 @@ body {
   align-self: flex-start;
   background-color: var(--background-color);
   border-radius: var(--border-radius);
-  padding: 0.3rem;
+  padding: 0.5rem;
   font-size: var(--font-size-medium);
 }
 
@@ -341,9 +341,16 @@ textarea.form-control::placeholder {
   flex-wrap: wrap; /* 折り返す */
   width: 100%;
 }
+.icon-selector {
+  font-size: var(--font-size-medium);
+}
 
-.task-icon-modal,
-.task-status-option {
+.status-selector {
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.task-icon-modal {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--button-radius);
@@ -357,18 +364,40 @@ textarea.form-control::placeholder {
 }
 
 .task-status-option {
+  cursor: pointer;
+  width: calc(25vw - 32px - 1rem); /* モーダル幅の4分の1からパディングとギャップを引く */
   border-radius: var(--modal-status-radius);
-  border-color: var(--border-color);
+  border: 2px solid var(--border-color);
   background-color: var(--background-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* text-transform: capitalize; */
+  color: var(--text-color);
+  /* transition: border-color 0.2s ease-in-out, background-color 0.1s ease-in-out; */
+}
+
+.task-status-option:hover {
+  border-color: #9ab0f1;
 }
 
 .task-status-option.selected {
   border-color: var(--primary-color);
 }
 
-.task-status-option {
-  text-transform: capitalize;
-  color: var(--text-color);
+.status-icon {
+  width: 20px;
+  height: 20px;
+  margin: 2px;
+}
+
+.status-select-icon {
+  width: 20px; /* アイコンのサイズを調整 */
+  height: 20px;
+  margin-left: auto; /* 右端に寄せる */
+  margin-right: 1rem;
+  background-color: var(--primary-color);
+  border-radius: 20px;
 }
 
 .modal-footer {
@@ -453,4 +482,5 @@ textarea.form-control::placeholder {
 .author-info a {
   text-decoration: none;
 }
+
 
