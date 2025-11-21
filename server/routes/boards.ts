@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
 import pool, { query } from '../db';
-import { Board, Column, Task } from '../../src/types';
+import { Board, Task } from '../../src/types';
 
 const router = Router();
 
@@ -14,24 +14,19 @@ router.get('/:boardId', async (req, res) => {
     if (boardRes.rows.length === 0) {
       return res.status(404).json({ message: 'Board not found' });
     }
+    
     const board: Board = {
       id: boardRes.rows[0].id,
       name: boardRes.rows[0].name,
-      columns: [],
+      description: boardRes.rows[0].description || '',
     };
 
-    const columnsRes = await query('SELECT * FROM columns WHERE board_id = $1', [boardId]);
     const tasksRes = await query(
-      'SELECT t.* FROM tasks t JOIN columns c ON t.column_id = c.id WHERE c.board_id = $1 ORDER BY t.task_order',
+      'SELECT * FROM tasks WHERE board_id = $1 ORDER BY task_order',
       [boardId]
     );
 
     const tasks = tasksRes.rows;
-    board.columns = columnsRes.rows.map((c) => ({
-      id: c.id,
-      name: c.name,
-      taskIds: tasks.filter((t) => t.column_id === c.id).map((t) => t.id),
-    }));
 
     res.json({ board, tasks });
   } catch (err) {
@@ -47,66 +42,57 @@ router.post('/', async (req, res) => {
     await client.query('BEGIN');
 
     const boardId = nanoid();
-    await client.query('INSERT INTO boards (id, name) VALUES ($1, $2)', [boardId, 'My Task Board']);
-
-    const columns = [
-      { id: nanoid(), name: 'In Progress' },
-      { id: nanoid(), name: 'Completed' },
-      { id: nanoid(), name: "Won't do" },
-      { id: nanoid(), name: "To Do" },
-    ];
+    await client.query(
+      'INSERT INTO boards (id, name, description) VALUES ($1, $2, $3)', 
+      [boardId, 'My Task Board', 'Tasks to keep organised']
+    );
 
     const defaultTasks = [
       { 
         id: nanoid(), 
         name: 'Task in Progress', 
-        column_id: columns[0].id, 
-        status: 'in-progress',
-        icon: '⏰️', 
-        content: 'This is a task in progress.' 
+        status_name: 'in-progress',
+        icon: '⏰', 
+        content: 'This is a task in progress.',
+        task_order: 0
       },
       { 
         id: nanoid(), 
         name: 'Task Completed', 
-        column_id: columns[1].id, 
-        status: 'completed',
+        status_name: 'completed',
         icon: '🏋️‍♂️', 
-        content: 'This is a completed task.' 
+        content: 'This is a completed task.',
+        task_order: 1
       },
       { 
         id: nanoid(), 
         name: "Task Won't Do", 
-        column_id: columns[2].id, 
-        status: 'wont-do',
+        status_name: 'wont-do',
         icon: '☕', 
-        content: "This is a task that won't be done." 
+        content: "This is a task that won't be done.",
+        task_order: 2
       },
       { 
         id: nanoid(), 
-        name: "Task To Do", 
-        column_id: columns[3].id, 
-        status: 'to-do',
+        name: 'Task To Do', 
+        status_name: '',
         icon: '📚', 
-        content: "Work on a Challenge on decChallenges.io, learn TypeScript." 
+        content: 'Work on a Challenge on devChallenges.io, learn TypeScript.',
+        task_order: 3
       }
     ];
 
-    for (const col of columns) {
-      await client.query('INSERT INTO columns (id, name, board_id) VALUES ($1, $2, $3)', [col.id, col.name, boardId]);
-    }
-
-    let order = 0;
     for (const task of defaultTasks) {
       await client.query(
-        'INSERT INTO tasks (id, column_id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [task.id, task.column_id, task.name, task.status, task.icon, task.content, order++]
+        'INSERT INTO tasks (id, board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [task.id, boardId, task.name, task.status_name, task.icon, task.content, task.task_order]
       );
     }
     
     const newBoard: Board = {
-        id: boardId,
-        name: 'My Task Board',
-        columns: columns.map((c, i) => ({...c, taskIds: [defaultTasks[i].id]})),
+      id: boardId,
+      name: 'My Task Board',
+      description: 'Tasks to keep organised',
     };
 
     await client.query('COMMIT');
@@ -122,28 +108,36 @@ router.post('/', async (req, res) => {
 
 // PUT /api/boards/:boardId
 router.put('/:boardId', async (req, res) => {
-    const { boardId } = req.params;
-    const { name, columns } = req.body;
+  const { boardId } = req.params;
+  const { name, description } = req.body;
 
-    try {
-        if (name) {
-            await query('UPDATE boards SET name = $1 WHERE id = $2', [name, boardId]);
-        }
-        if (columns) {
-            // カラム名の更新とタスクのカラム移動・並び順を反映
-            for (const col of columns) {
-                await query('UPDATE columns SET name = $1 WHERE id = $2', [col.name, col.id]);
-                let order = 0;
-                for (const taskId of col.taskIds) {
-                    await query('UPDATE tasks SET column_id = $1, task_order = $2 WHERE id = $3', [col.id, order++, taskId]);
-                }
-            }
-        }
-        res.status(200).json({ message: 'Board updated' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+  try {
+    if (name !== undefined || description !== undefined) {
+      const updates = [];
+      const values = [];
+      let paramIndex = 1;
+
+      if (name !== undefined) {
+        updates.push(`name = $${paramIndex++}`);
+        values.push(name);
+      }
+      if (description !== undefined) {
+        updates.push(`description = $${paramIndex++}`);
+        values.push(description);
+      }
+      values.push(boardId);
+
+      await query(
+        `UPDATE boards SET ${updates.join(', ')} WHERE id = $${paramIndex}`,
+        values
+      );
     }
+
+    res.status(200).json({ message: 'Board updated' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // DELETE /api/boards/:boardId

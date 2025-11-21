@@ -9,7 +9,7 @@ interface TaskCardProps {
   onClick: (task: Task) => void;
 }
 
-const getStatusIcon = (status: Task['status']) => {
+const getStatusIcon = (status: Task['status_name']) => {
   switch (status) {
     case 'in-progress':
       return TaskStatusInProgressIcon;
@@ -24,12 +24,16 @@ const getStatusIcon = (status: Task['status']) => {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
   return (
-    <div className={`task-card ${task.status}`} onClick={() => onClick(task)}>
+    <div className={`task-card ${task.status_name || 'to-do'}`} onClick={() => onClick(task)}>
       <div className="task-header">
         <span className="task-icon-card">{task.icon}</span>
         <span className="task-name">{task.name}</span>
-        {task.status !== 'to-do' && (
-          <img src={getStatusIcon(task.status) || undefined} alt={`${task.name} icon`} className={`task-status status-${task.status}`} />
+        {task.status_name && (
+          <img
+            src={getStatusIcon(task.status_name) || undefined}
+            alt={`${task.status_name} icon`}
+            className={`task-status status-${task.status_name}`}
+          />
         )}
       </div>
       <div className="task-content">

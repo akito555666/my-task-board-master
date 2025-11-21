@@ -1,27 +1,22 @@
-DROP TABLE IF EXISTS tasks;
-DROP TABLE IF EXISTS columns;
-DROP TABLE IF EXISTS boards;
+DROP TABLE IF EXISTS tasks CASCADE;
+DROP TABLE IF EXISTS boards CASCADE;
 
 -- boardsテーブル
 CREATE TABLE boards (
     id VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-);
-
--- columnsテーブル
-CREATE TABLE columns (
-    id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    board_id VARCHAR(255) REFERENCES boards(id) ON DELETE CASCADE
+    description TEXT
 );
 
 -- tasksテーブル
 CREATE TABLE tasks (
     id VARCHAR(255) PRIMARY KEY,
-    column_id VARCHAR(255) REFERENCES columns(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
-    icon VARCHAR(255),
-    status VARCHAR(255),
-    content TEXT,
-    task_order INTEGER
+    board_id VARCHAR(255) NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL DEFAULT 'Untitled Task',
+    icon VARCHAR(255) DEFAULT '',
+    status_name VARCHAR(50) NOT NULL DEFAULT '',
+    content TEXT DEFAULT '',
+    task_order INTEGER DEFAULT 0
 );
+
+CREATE INDEX idx_tasks_board_status ON tasks(board_id, status_name);

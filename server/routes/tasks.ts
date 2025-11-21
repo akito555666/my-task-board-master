@@ -7,28 +7,31 @@ const router = Router();
 
 // POST /api/tasks
 router.post('/', async (req, res) => {
-  const { name, column_id, status } = req.body;
+  const { name, board_id, status_name, icon, content } = req.body;
 
-  if (!name || !column_id) {
-    return res.status(400).json({ message: 'Missing required fields: name, column_id' });
+  if (!name || !board_id || !status_name) {
+    return res.status(400).json({ message: 'Missing required fields: name, board_id, status_name' });
   }
 
   try {
-    // column_id でのタスク数を取得して並び順を決定
-    const orderRes = await query('SELECT count(*) as count FROM tasks WHERE column_id = $1', [column_id]);
+    // status_name でのタスク数を取得して並び順を決定
+    const orderRes = await query(
+      'SELECT count(*) as count FROM tasks WHERE board_id = $1 AND status_name = $2',
+      [board_id, status_name]
+    );
     const order = parseInt(orderRes.rows[0].count, 10);
 
     const newTask: Task = {
       id: nanoid(),
       name,
-      status: status || 'to-do', // デフォルトは 'to-do'
-      icon: 'Add_round_duotone',
-      content: '',
+      status_name,
+      icon: icon || '📝',
+      content: content || '',
     };
 
     await query(
-      'INSERT INTO tasks (id, column_id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [newTask.id, column_id, newTask.name, newTask.status, newTask.icon, newTask.content, order]
+      'INSERT INTO tasks (id, board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [newTask.id, board_id, newTask.name, newTask.status_name, newTask.icon, newTask.content, order]
     );
 
     res.status(201).json(newTask);
@@ -41,7 +44,7 @@ router.post('/', async (req, res) => {
 // PUT /api/tasks/:taskId
 router.put('/:taskId', async (req, res) => {
   const { taskId } = req.params;
-  const { name, content, icon, status, column_id } = req.body;
+  const { name, content, icon, status_name } = req.body;
 
   try {
     const taskRes = await query('SELECT * FROM tasks WHERE id = $1', [taskId]);
@@ -50,15 +53,14 @@ router.put('/:taskId', async (req, res) => {
     }
     const task = taskRes.rows[0];
 
-    const newName = name ?? task.name;
-    const newContent = content ?? task.content;
-    const newIcon = icon ?? task.icon;
-    const newStatus = status ?? task.status;
-    const newColumnId = column_id ?? task.column_id;
+    const newName = name !== undefined ? name : task.name;
+    const newContent = content !== undefined ? content : task.content;
+    const newIcon = icon !== undefined ? icon : task.icon;
+    const newStatusName = status_name !== undefined ? status_name : task.status_name;
 
     await query(
-      'UPDATE tasks SET name = $1, content = $2, icon = $3, status = $4, column_id = $5 WHERE id = $6',
-      [newName, newContent, newIcon, newStatus, newColumnId, taskId]
+      'UPDATE tasks SET name = $1, content = $2, icon = $3, status_name = $4 WHERE id = $5',
+      [newName, newContent, newIcon, newStatusName, taskId]
     );
 
     res.json({ 
@@ -66,8 +68,7 @@ router.put('/:taskId', async (req, res) => {
       name: newName, 
       content: newContent, 
       icon: newIcon, 
-      status: newStatus,
-      column_id: newColumnId 
+      status_name: newStatusName
     });
   } catch (err) {
     console.error(err);

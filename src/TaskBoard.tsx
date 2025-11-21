@@ -30,7 +30,6 @@ export const TaskBoard = (): React.ReactElement => {
         setTasks(data.tasks);
         localStorage.setItem('boardId', data.board.id);
       } else {
-        // If board not found, remove invalid boardId and create a new one
         localStorage.removeItem('boardId');
         createNewBoard();
       }
@@ -54,7 +53,6 @@ export const TaskBoard = (): React.ReactElement => {
 
       const newBoard = await response.json();
 
-      // newBoard.id が存在することを確認
       if (newBoard && newBoard.id) {
         localStorage.setItem('boardId', newBoard.id);
         await fetchBoard(newBoard.id);
@@ -66,12 +64,18 @@ export const TaskBoard = (): React.ReactElement => {
     }
   };
 
-  const openModal = (task?: Task, status?: string) => {
+  const openModal = (task?: Task) => {
     if (task) {
       setSelectedTask(task);
     } else {
-      // For creating a new task.
-      setSelectedTask({ id: '', name: '', content: '', icon: '➕️', status: status || '' });
+      // 新規タスク作成 - デフォルトは空文字列
+      setSelectedTask({
+        id: '',
+        name: 'New Task',
+        content: '',
+        icon: '',
+        status_name: 'to-do'
+      });
     }
     setModalOpen(true);
   };
@@ -85,32 +89,29 @@ export const TaskBoard = (): React.ReactElement => {
     if (!board) return;
 
     const isNewTask = !savedTask.id;
-
-    // For new tasks, the status must be set.
-    if (isNewTask && !savedTask.status) {
-      alert("Please select a status for the new task.");
-      return;
-    }
-
     const method = isNewTask ? 'POST' : 'PUT';
     const url = isNewTask ? `${API_URL}/tasks` : `${API_URL}/tasks/${savedTask.id}`;
 
-    // column_id が必要なので、status から該当する column を探す
-    const column = board.columns.find(col => col.name === savedTask.status);
-    const body = JSON.stringify({
-      ...savedTask,
-      column_id: column?.id
-    });
+    const bodyData: any = {
+      name: savedTask.name,
+      content: savedTask.content,
+      icon: savedTask.icon,
+      status_name: savedTask.status_name,
+    };
+
+    if (isNewTask) {
+      bodyData.board_id = board.id;
+    }
 
     try {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body,
+        body: JSON.stringify(bodyData),
       });
 
       if (response.ok) {
-        await fetchBoard(board.id); // Refetch to get the latest state
+        await fetchBoard(board.id);
       } else {
         const errorData = await response.json();
         console.error('Failed to save task:', errorData.message);
@@ -129,7 +130,7 @@ export const TaskBoard = (): React.ReactElement => {
         method: 'DELETE',
       });
       if (response.ok) {
-        await fetchBoard(board.id); // Refetch to get the latest state
+        await fetchBoard(board.id);
       } else {
         console.error('Failed to delete task');
       }
@@ -146,8 +147,14 @@ export const TaskBoard = (): React.ReactElement => {
   return (
     <>
       <BoardHeader />
-      <TaskList board={board} tasks={tasks} openModal={openModal} />
-      <Modal isOpen={modalOpen} onClose={closeModal} board={board} task={selectedTask} onSave={handleSaveTask} onDelete={handleDeleteTask} />
+      <TaskList tasks={tasks} openModal={openModal} />
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        task={selectedTask}
+        onSave={handleSaveTask}
+        onDelete={handleDeleteTask}
+      />
     </>
   );
 };

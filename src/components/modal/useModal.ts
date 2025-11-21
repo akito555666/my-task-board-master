@@ -1,33 +1,27 @@
-import { Task } from "../../types";
+import { Dispatch, SetStateAction } from 'react';
+import { Task } from '../../types';
 
-type Props = {
-  setEditTask: React.Dispatch<React.SetStateAction<Partial<Task> | null>>
-};
+interface UseModalProps {
+  setEditTask: Dispatch<SetStateAction<Partial<Task> | null>>;
+}
 
-export const useModal = ({ setEditTask }: Props) => {
+export const useModal = ({ setEditTask }: UseModalProps) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditTask(prev => prev ? { ...prev, [name]: value } : null);
+    setEditTask((prev) => prev ? { ...prev, [name]: value } : null);
   };
 
   const handleIconSelect = (icon: string) => {
-    setEditTask(prev => {
-      if (!prev) return null;
-      if (prev.icon === icon) {
-        return { ...prev, icon: '' };
-      }
-      return { ...prev, icon };
-    });
+    setEditTask((prev) => prev ? { ...prev, icon } : null);
   };
 
-  const handleStatusSelect = (status: string) => {
-    setEditTask(prev => {
-      if (!prev) {
-        return { status: '' };
-      }
-      return { ...prev, status };
-    });
+  const handleStatusSelect = (status_name: Task['status_name']) => {
+    setEditTask((prev) => prev ? { ...prev, status_name } : null);
   };
 
-  return { handleInputChange, handleIconSelect, handleStatusSelect }
-}
+  return {
+    handleInputChange,
+    handleIconSelect,
+    handleStatusSelect,
+  };
+};
