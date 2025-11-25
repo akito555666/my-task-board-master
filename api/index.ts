@@ -1,6 +1,15 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import app from '../server/app';
+import express from 'express';
+import cors from 'cors';
+import boardsRouter from '../server/routes/boards';
+import tasksRouter from '../server/routes/tasks';
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  return app(req, res);
-}
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/boards', boardsRouter);
+app.use('/api/tasks', tasksRouter);
+
+export default app;
