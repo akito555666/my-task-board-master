@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import 'dotenv/config';
 import { query } from '../server/db';
+import { Board, Task } from '../server/types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 診断用
@@ -33,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(404).json({ message: 'Board not found' });
       }
       
-      const board = {
+      const board: Board = {
         id: boardRes.rows[0].id.toString(),
         name: boardRes.rows[0].name,
         description: boardRes.rows[0].description || '',
