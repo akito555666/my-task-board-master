@@ -4,7 +4,8 @@ import { BoardHeader } from "./components/BoardHeader";
 import { TaskList } from "./components/TaskList";
 import { Modal } from "./components/modal/Modal";
 
-const API_URL = 'http://localhost:3001/api';
+// @ts-ignore
+const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3001/api';
 
 export const TaskBoard = (): React.ReactElement => {
   const [board, setBoard] = useState<Board | null>(null);

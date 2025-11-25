@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import pool, { query } from '../db';
-import { Board, Task } from '../../src/types';
+import { query } from '../db';
+import { Board } from '../../src/types';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.get('/:boardId', async (req, res) => {
     }
     
     const board: Board = {
-      id: boardRes.rows[0].id,
+      id: boardRes.rows[0].id.toString(),
       name: boardRes.rows[0].name,
       description: boardRes.rows[0].description || '',
     };
@@ -36,11 +36,8 @@ router.get('/:boardId', async (req, res) => {
 
 // POST /api/boards
 router.post('/', async (req, res) => {
-  const client = await pool.connect();
   try {
-    await client.query('BEGIN');
-
-    const boardResult = await client.query(
+    const boardResult = await query(
       'INSERT INTO boards (name, description) VALUES ($1, $2) RETURNING id', 
       ['My Task Board', 'Tasks to keep organised']
     );
@@ -78,7 +75,7 @@ router.post('/', async (req, res) => {
     ];
 
     for (const task of defaultTasks) {
-      await client.query(
+      await query(
         'INSERT INTO tasks (board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6)',
         [boardId, task.name, task.status_name, task.icon, task.content, task.task_order]
       );
@@ -90,14 +87,10 @@ router.post('/', async (req, res) => {
       description: 'Tasks to keep organised',
     };
 
-    await client.query('COMMIT');
     res.status(201).json(newBoard);
   } catch (err) {
-    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
-  } finally {
-    client.release();
   }
 });
 
