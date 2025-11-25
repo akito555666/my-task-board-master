@@ -1,9 +1,17 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import 'dotenv/config';
 import { query } from '../server/db';
-import { Board, Task } from '../server/types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // 診断用
+  if (req.url === '/api/health') {
+    return res.json({
+      status: 'ok',
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      databaseUrlLength: process.env.DATABASE_URL?.length || 0
+    });
+  }
+
   // CORS設定
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
