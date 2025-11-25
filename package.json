@@ -9,6 +9,7 @@
     "db:init": "\"psql.exe\" -U postgres -d taskboard -a -f server/init.sql"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "@types/pg": "^8.15.6",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -22,7 +23,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "vercel": "^48.10.11"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
