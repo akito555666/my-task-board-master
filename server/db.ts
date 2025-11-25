@@ -1,3 +1,4 @@
+import 'dotenv/config';  // これを最初に追加
 import { Pool } from 'pg';
 
 console.log('Connecting to database with the following config:');
