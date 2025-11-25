@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { nanoid } from 'nanoid';
 import { query } from '../db';
 import { Task } from '../../src/types';
 
@@ -21,18 +20,18 @@ router.post('/', async (req, res) => {
     );
     const order = parseInt(orderRes.rows[0].count, 10);
 
+    const result = await query(
+      'INSERT INTO tasks (board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [board_id, name, status_name, icon || '', content || '', order]
+    );
+
     const newTask: Task = {
-      id: nanoid(),
+      id: result.rows[0].id.toString(),
       name,
       status_name,
       icon: icon || '',
       content: content || '',
     };
-
-    await query(
-      'INSERT INTO tasks (id, board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [newTask.id, board_id, newTask.name, newTask.status_name, newTask.icon, newTask.content, order]
-    );
 
     res.status(201).json(newTask);
   } catch (err) {

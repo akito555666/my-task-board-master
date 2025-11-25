@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { nanoid } from 'nanoid';
 import pool, { query } from '../db';
 import { Board, Task } from '../../src/types';
 
@@ -41,15 +40,14 @@ router.post('/', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    const boardId = nanoid();
-    await client.query(
-      'INSERT INTO boards (id, name, description) VALUES ($1, $2, $3)', 
-      [boardId, 'My Task Board', 'Tasks to keep organised']
+    const boardResult = await client.query(
+      'INSERT INTO boards (name, description) VALUES ($1, $2) RETURNING id', 
+      ['My Task Board', 'Tasks to keep organised']
     );
+    const boardId = boardResult.rows[0].id;
 
     const defaultTasks = [
       { 
-        id: nanoid(), 
         name: 'Task in Progress', 
         status_name: 'in-progress',
         icon: '⏰', 
@@ -57,7 +55,6 @@ router.post('/', async (req, res) => {
         task_order: 0
       },
       { 
-        id: nanoid(), 
         name: 'Task Completed', 
         status_name: 'completed',
         icon: '🏋️‍♂️', 
@@ -65,7 +62,6 @@ router.post('/', async (req, res) => {
         task_order: 1
       },
       { 
-        id: nanoid(), 
         name: "Task Won't Do", 
         status_name: 'wont-do',
         icon: '☕', 
@@ -73,9 +69,8 @@ router.post('/', async (req, res) => {
         task_order: 2
       },
       { 
-        id: nanoid(), 
         name: 'Task To Do', 
-        status_name: '',
+        status_name: 'to-do',
         icon: '📚', 
         content: 'Work on a Challenge on devChallenges.io, learn TypeScript.',
         task_order: 3
@@ -84,13 +79,13 @@ router.post('/', async (req, res) => {
 
     for (const task of defaultTasks) {
       await client.query(
-        'INSERT INTO tasks (id, board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [task.id, boardId, task.name, task.status_name, task.icon, task.content, task.task_order]
+        'INSERT INTO tasks (board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6)',
+        [boardId, task.name, task.status_name, task.icon, task.content, task.task_order]
       );
     }
     
     const newBoard: Board = {
-      id: boardId,
+      id: boardId.toString(),
       name: 'My Task Board',
       description: 'Tasks to keep organised',
     };

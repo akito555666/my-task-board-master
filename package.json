@@ -2,7 +2,7 @@
   "name": "my-task-board-master",
   "version": "0.0.0",
   "scripts": {
-    "dev": "ts-node server/index.ts",
+    "dev": "vite",
     "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
     "build": "vite build",
     "preview": "vite preview",

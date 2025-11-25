@@ -1,5 +1,5 @@
 export interface Task {
-  id: string;
+  id: string;  // フロントエンドでは文字列として扱う
   name: string;
   status_name: 'in-progress' | 'completed' | 'wont-do' | 'to-do';
   icon: string;
@@ -7,7 +7,7 @@ export interface Task {
 }
 
 export interface Board {
-  id: string;
+  id: string;  // フロントエンドでは文字列として扱う
   name: string;
   description?: string;
 }
