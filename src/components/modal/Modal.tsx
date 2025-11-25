@@ -9,12 +9,12 @@ import SaveIcon from "../../../resources/Done_round.svg";
 import DeleteIcon from "../../../resources/Trash.svg";
 import CloseIcon from "../../../resources/close_ring_duotone-1.svg";
 
-const availableIcons = ['🧑‍💻', '💬', '☕', '🏋️‍♂️', '📚', '⏰️'];
+const availableIcons = ['🧑‍💻', '💬', '☕', '🏋️‍♂️', '📚', '⏰'];
 
-const statusOptions: { value: Task['status']; label: string; icon: string }[] = [
-  { value: 'in-progress', label: 'In Progress', icon: InProgressIcon },
-  { value: 'completed', label: 'Completed', icon: CompletedIcon },
-  { value: 'wont-do', label: "Won't do", icon: WontDoIcon },
+const statusOptions = [
+  { value: 'in-progress' as const, label: 'In Progress', icon: InProgressIcon },
+  { value: 'completed' as const, label: 'Completed', icon: CompletedIcon },
+  { value: 'wont-do' as const, label: "Won't do", icon: WontDoIcon },
 ];
 
 interface ModalProps {
@@ -22,20 +22,25 @@ interface ModalProps {
   isOpen: boolean;
   task: Task | null;
   onSave: (task: Task) => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: string) => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onDelete }) => {
+export const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  task,
+  onSave,
+  onDelete
+}) => {
   const [editTask, setEditTask] = useState<Partial<Task> | null>(task);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const { handleInputChange, handleIconSelect, handleStatusSelect } = useModal({ setEditTask });  // Custom hook for modal logic
+  const { handleInputChange, handleIconSelect, handleStatusSelect } = useModal({ setEditTask });
 
   useEffect(() => {
     setEditTask(task);
   }, [task]);
 
-  // textarea の高さをコンテンツに合わせる
   const adjustTextareaHeight = () => {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -44,9 +49,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
   };
 
   useEffect(() => {
-    // モーダル開閉やタスク変更時に高さを調整
     if (isOpen) {
-      // 少し遅延を入れて描画後に高さを合わせる
       setTimeout(adjustTextareaHeight, 0);
     }
   }, [isOpen, task?.content]);
@@ -54,13 +57,21 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
   if (!isOpen || !editTask) return null;
 
   const handleSave = () => {
-    if (editTask && editTask.id !== undefined) {
-      onSave(editTask as Task);
+    if (editTask) {
+      const taskToSave = {
+        ...editTask,
+        name: editTask.name || '',
+        icon: editTask.icon || '',
+        content: editTask.content || '',
+        status_name: editTask.status_name || 'to-do',
+      } as Task;
+
+      onSave(taskToSave);
     }
   };
 
   const handleDelete = () => {
-    if (editTask && editTask.id !== undefined) {
+    if (editTask && editTask.id) {
       onDelete(editTask.id);
     }
   };
@@ -77,7 +88,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
         <div className="modal-body">
           <div className="form-group">
             <label>Task name</label>
-            <input type="text" name="name" value={editTask.name} onChange={handleInputChange} className="form-control" />
+            <input
+              type="text"
+              name="name"
+              value={editTask.name || ''}
+              onChange={handleInputChange}
+              className="form-control"
+            />
           </div>
           <div className="form-group">
             <label>Description</label>
@@ -85,7 +102,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
               ref={textareaRef}
               name="content"
               placeholder="Enter a short description"
-              value={editTask.content}
+              value={editTask.content || ''}
               onChange={handleInputChange}
               onInput={adjustTextareaHeight}
               className="form-control"
@@ -95,7 +112,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
             <label>Icon</label>
             <div className="icon-selector">
               {availableIcons.map(icon => (
-                <span key={icon} className={`task-icon-modal ${editTask.icon === icon ? 'selected' : ''}`} onClick={() => handleIconSelect(icon)}>{icon}</span>
+                <span
+                  key={icon}
+                  className={`task-icon-modal ${editTask.icon === icon ? 'selected' : ''}`}
+                  onClick={() => handleIconSelect(icon)}
+                >
+                  {icon}
+                </span>
               ))}
             </div>
           </div>
@@ -104,13 +127,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
             <div className="status-selector">
               {statusOptions.map(({ value, label, icon }) => (
                 <div
-                  key={value}
-                  className={`task-status-option ${editTask.status === value ? 'selected' : ''}`}
+                  key={value || 'empty'}
+                  className={`task-status-option ${editTask.status_name === value ? 'selected' : ''}`}
                   onClick={() => handleStatusSelect(value)}
                 >
-                  <img src={icon} alt={label} className={`task-status status-${value} status-icon`} />
+                  {icon && <img src={icon} alt={label} className={`task-status status-${value} status-icon`} />}
                   <span>{label}</span>
-                  {editTask.status === value && (
+                  {editTask.status_name === value && (
                     <img src={StatusSelectIcon} alt="Status selected" className="status-select-icon" />
                   )}
                 </div>
@@ -119,8 +142,14 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={handleDelete} className="btn btn-danger">Delete<img src={DeleteIcon} alt="Delete" className="btn-delete-icon" /></button>
-          <button onClick={handleSave} className="btn btn-primary">Save<img src={SaveIcon} alt="Save" className="btn-save-icon" /></button>
+          <button onClick={handleDelete} className="btn btn-danger" disabled={!editTask.id}>
+            Delete
+            <img src={DeleteIcon} alt="Delete" className="btn-delete-icon" />
+          </button>
+          <button onClick={handleSave} className="btn btn-primary">
+            Save
+            <img src={SaveIcon} alt="Save" className="btn-save-icon" />
+          </button>
         </div>
       </div>
     </div>

@@ -1,7 +1,13 @@
 export interface Task {
-  id: number;
+  id: string;
   name: string;
-  status: 'in-progress' | 'completed' | 'wont-do' | 'to-do';
+  status_name: 'in-progress' | 'completed' | 'wont-do' | 'to-do';
   icon: string;
   content: string;
+}
+
+export interface Board {
+  id: string;
+  name: string;
+  description?: string;
 }

@@ -12,7 +12,11 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, openModal }) => {
   return (
     <div className="task-board">
       {tasks.map(task => (
-        <TaskCard key={task.id} task={task} onClick={openModal} />
+        <TaskCard
+          key={task.id}
+          task={task}
+          onClick={() => openModal(task)}
+        />
       ))}
       <AddTaskCard onClick={() => openModal()} />
     </div>
