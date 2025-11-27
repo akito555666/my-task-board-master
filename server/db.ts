@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 
 console.log('Connecting to database with the following config:');
 console.log({
@@ -18,5 +19,8 @@ const pool = new Pool({
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
+
+// Prisma Clientのインスタンスをエクスポート
+export const prisma = new PrismaClient();
 
 export default pool;

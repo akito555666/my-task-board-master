@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
-import { query } from '../db';
+import { prisma } from '../db';
 import { Task } from '../../src/types';
 
 const router = Router();
@@ -14,12 +14,12 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // status_name でのタスク数を取得して並び順を決定
-    const orderRes = await query(
-      'SELECT count(*) as count FROM tasks WHERE board_id = $1 AND status_name = $2',
-      [board_id, status_name]
-    );
-    const order = parseInt(orderRes.rows[0].count, 10);
+    // ボード全体でのタスク数を取得して並び順を決定
+    const count = await prisma.task.count({
+      where: {
+        boardId: board_id
+      }
+    });
 
     const newTask: Task = {
       id: nanoid(),
@@ -29,10 +29,17 @@ router.post('/', async (req, res) => {
       content: content || '',
     };
 
-    await query(
-      'INSERT INTO tasks (id, board_id, name, status_name, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [newTask.id, board_id, newTask.name, newTask.status_name, newTask.icon, newTask.content, order]
-    );
+    await prisma.task.create({
+      data: {
+        id: newTask.id,
+        boardId: board_id,
+        name: newTask.name,
+        statusName: newTask.status_name,
+        icon: newTask.icon,
+        content: newTask.content,
+        taskOrder: count
+      }
+    });
 
     res.status(201).json(newTask);
   } catch (err) {
@@ -47,28 +54,30 @@ router.put('/:taskId', async (req, res) => {
   const { name, content, icon, status_name } = req.body;
 
   try {
-    const taskRes = await query('SELECT * FROM tasks WHERE id = $1', [taskId]);
-    if (taskRes.rows.length === 0) {
+    const task = await prisma.task.findUnique({
+      where: { id: taskId }
+    });
+
+    if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
-    const task = taskRes.rows[0];
 
-    const newName = name !== undefined ? name : task.name;
-    const newContent = content !== undefined ? content : task.content;
-    const newIcon = icon !== undefined ? icon : task.icon;
-    const newStatusName = status_name !== undefined ? status_name : task.status_name;
-
-    await query(
-      'UPDATE tasks SET name = $1, content = $2, icon = $3, status_name = $4 WHERE id = $5',
-      [newName, newContent, newIcon, newStatusName, taskId]
-    );
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        name: name !== undefined ? name : task.name,
+        content: content !== undefined ? content : task.content,
+        icon: icon !== undefined ? icon : task.icon,
+        statusName: status_name !== undefined ? status_name : task.statusName
+      }
+    });
 
     res.json({ 
-      id: taskId, 
-      name: newName, 
-      content: newContent, 
-      icon: newIcon, 
-      status_name: newStatusName
+      id: updatedTask.id, 
+      name: updatedTask.name, 
+      content: updatedTask.content, 
+      icon: updatedTask.icon, 
+      status_name: updatedTask.statusName
     });
   } catch (err) {
     console.error(err);
@@ -81,10 +90,9 @@ router.delete('/:taskId', async (req, res) => {
   const { taskId } = req.params;
 
   try {
-    const result = await query('DELETE FROM tasks WHERE id = $1', [taskId]);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
+    await prisma.task.delete({
+      where: { id: taskId }
+    });
     res.status(204).send();
   } catch (err) {
     console.error(err);
