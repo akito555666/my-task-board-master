@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id          String  @id @db.VarChar(255)
+  name        String  @db.VarChar(255)
+  description String?
+  tasks       Task[]
+  
+  @@map("boards")
+}
+
+model Task {
+  id         String    @id @db.VarChar(255)
+  boardId    String    @map("board_id") @db.VarChar(255)
+  name       String    @default("") @db.VarChar(255)
+  icon       String?   @default("") @db.VarChar(255)
+  statusName String    @default("") @map("status_name") @db.VarChar(50)
+  content    String?   @default("")
+  taskOrder  Int?      @default(0) @map("task_order")
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  board      Board     @relation(fields: [boardId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([boardId, statusName], map: "idx_tasks_board_status")
+  @@map("tasks")
+}
