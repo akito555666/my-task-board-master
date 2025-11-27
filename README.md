@@ -9,6 +9,14 @@
 - Node.js (v16以上推奨)
 - PostgreSQL (v12以上推奨)
 
+## 技術スタック
+
+- **フロントエンド**: React, TypeScript, Vite
+- **バックエンド**: Node.js, Express
+- **データベース**: PostgreSQL
+- **ORM**: Prisma (v6.19.0)
+- **その他**: nanoid (ID生成)
+
 ## セットアップ手順
 
 ### 1. リポジトリのクローン
@@ -60,7 +68,15 @@ CREATE DATABASE taskboard;
 \q
 ```
 
-### 5. データベースの初期化
+### 5. Prisma Clientの生成
+
+Prisma Clientを生成します。
+
+```bash
+npx prisma generate
+```
+
+### 6. データベースの初期化
 
 テーブルとユーザーを作成します。
 
@@ -68,7 +84,9 @@ CREATE DATABASE taskboard;
 npm run db:init
 ```
 
-### 6. アプリケーションの起動
+**注意**: データベースを再初期化すると、既存のデータは全て削除されます。
+
+### 7. アプリケーションの起動
 
 **バックエンドサーバー起動** (別のターミナルで):
 
@@ -82,11 +100,41 @@ npm run dev:server
 npm run dev
 ```
 
-### 7. ブラウザでアクセス
+### 8. ブラウザでアクセス
 
 http://localhost:5173
 
 問題なくページが表示されれば、アプリを使用することができます！
+
+## データベース管理コマンド
+
+### Prismaスキーマの更新
+
+データベーススキーマを変更した場合:
+
+```bash
+npx prisma db push
+```
+
+### 既存データベースからスキーマを取得
+
+```bash
+npx prisma db pull
+```
+
+### Prisma Clientの再生成
+
+スキーマを変更した後は必ず実行:
+
+```bash
+npx prisma generate
+```
+
+### データベースの完全リセット
+
+```bash
+npm run db:init
+```
 
 ## トラブルシューティング
 
@@ -95,11 +143,44 @@ http://localhost:5173
 - `.env`ファイルの設定を確認してください
 - PostgreSQLが起動しているか確認してください
 - `taskuser`に適切な権限があるか確認してください
+- `DATABASE_URL`が正しく設定されているか確認してください
+
+### Prismaのエラーが出る場合
+
+- `npx prisma generate`を実行してClientを再生成してください
+- Prismaのバージョンが一致しているか確認してください（CLI: 6.19.0, Client: 6.19.0）
+
+### タスクの順序がおかしい場合
+
+- データベースを再初期化してください: `npm run db:init`
+- ブラウザのlocalStorageから`boardId`を削除して、ページをリロードしてください
 
 ### ポートが使用中の場合
 
 - バックエンド: `server/index.ts`の`port`を変更
 - フロントエンド: `vite.config.ts`の`server.port`を変更
+
+## プロジェクト構成
+
+```
+my-task-board-master/
+├── prisma/
+│   └── schema.prisma      # Prismaスキーマ定義
+├── server/
+│   ├── db.ts              # データベース接続とPrismaクライアント
+│   ├── index.ts           # Expressサーバー
+│   ├── init.sql           # データベース初期化SQL
+│   ├── setup-db.ts        # データベースセットアップスクリプト
+│   └── routes/
+│       ├── boards.ts      # ボード関連API
+│       └── tasks.ts       # タスク関連API
+├── src/
+│   ├── components/        # Reactコンポーネント
+│   ├── types/             # TypeScript型定義
+│   ├── TaskBoard.tsx      # メインコンポーネント
+│   └── main.tsx           # エントリーポイント
+└── .env                   # 環境変数
+```
 
 ---
 
