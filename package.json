@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
+    "dev:server": "ts-node --project tsconfig.server.json -r dotenv/config server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
     "db:init": "ts-node -r dotenv/config server/setup-db.ts",
