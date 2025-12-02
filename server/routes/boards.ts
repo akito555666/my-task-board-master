@@ -33,9 +33,9 @@ router.get('/:boardId', async (req, res) => {
     }));
 
     res.json({ board, tasks: tasksFormatted });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 
@@ -95,9 +95,9 @@ router.post('/', async (req, res) => {
     };
 
     res.status(201).json(newBoard);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 
